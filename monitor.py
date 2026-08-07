@@ -116,11 +116,11 @@ def send_ntfy(title: str, message: str, screenshot_path: str):
 def send_email(subject: str, body: str, screenshot_path: str):
     sender = os.environ["GMAIL_USER"]
     password = os.environ["GMAIL_APP_PASSWORD"]
-    recipient = os.environ.get("NOTIFY_EMAIL", sender)
+    recipients = [r.strip() for r in os.environ.get("NOTIFY_EMAIL", sender).split(",")]
 
     msg = MIMEMultipart()
     msg["From"] = sender
-    msg["To"] = recipient
+    msg["To"] = ", ".join(recipients)
     msg["Subject"] = subject
     msg.attach(MIMEText(body, "plain", "utf-8"))
 
@@ -131,7 +131,7 @@ def send_email(subject: str, body: str, screenshot_path: str):
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(sender, password)
-        smtp.sendmail(sender, recipient, msg.as_string())
+        smtp.sendmail(sender, recipients, msg.as_string())
 
 
 def notify(title: str, message: str, email_subject: str, email_body: str):
